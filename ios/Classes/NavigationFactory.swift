@@ -284,11 +284,15 @@ public class NavigationFactory : NSObject, FlutterStreamHandler
 
     func sendEvent(eventType: MapBoxEventType, data: String = "")
     {
+        
         let routeEvent = MapBoxRouteEvent(eventType: eventType, data: data)
 
         let jsonEncoder = JSONEncoder()
         let jsonData = try! jsonEncoder.encode(routeEvent)
         let eventJson = String(data: jsonData, encoding: String.Encoding.utf8)
+        if(eventType == MapBoxEventType.on_arrival) {
+            print("Sending \(String(describing: eventJson)): to Flutter Engine")
+        }
         if(_eventSink != nil){
             _eventSink!(eventJson)
         }
@@ -370,12 +374,14 @@ extension NavigationFactory : NavigationViewControllerDelegate {
 
             if(progress.isFinalLeg && progress.currentLegProgress.userHasArrivedAtWaypoint)
             {
-                _eventSink = nil
+                sendEvent(eventType: MapBoxEventType.on_arrival)
+                //_eventSink = nil
             }
         }
     }
 
     public func navigationViewController(_ navigationViewController: NavigationViewController, didArriveAt waypoint: Waypoint) -> Bool {
+        print("NavigationViewControllerDelegate didArrive Called")
         sendEvent(eventType: MapBoxEventType.on_arrival, data: "true")
         if(!_wayPoints.isEmpty && IsMultipleUniqueRoutes)
         {

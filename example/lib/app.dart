@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -78,7 +80,7 @@ class _SampleNavigationAppState extends State<SampleNavigationApp> {
     if (!mounted) return;
 
     _navigationOption = MapBoxNavigation.instance.getDefaultOptions();
-    _navigationOption.simulateRoute = false;
+    _navigationOption.simulateRoute = Platform.isIOS;
     _navigationOption.mapStyleUrlDay =
         'mapbox://styles/mapbox/navigation-night-v1';
     _navigationOption.mapStyleUrlNight =
@@ -300,6 +302,7 @@ class _SampleNavigationAppState extends State<SampleNavigationApp> {
   Future<void> _onEmbeddedRouteEvent(e) async {
     _distanceRemaining = await MapBoxNavigation.instance.getDistanceRemaining();
     _durationRemaining = await MapBoxNavigation.instance.getDurationRemaining();
+    log('Route Event: ${e.eventType}');
 
     switch (e.eventType) {
       case MapBoxEvent.progress_change:
