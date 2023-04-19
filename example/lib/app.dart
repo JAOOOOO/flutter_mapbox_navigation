@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mapbox_navigation/flutter_mapbox_navigation.dart';
@@ -44,6 +45,18 @@ class _SampleNavigationAppState extends State<SampleNavigationApp> {
       latitude: 37.76556957793795,
       longitude: -122.42409811526268);
 
+  final _dentist = WayPoint(
+    name: "Dentist",
+    latitude: 27.9151,
+    longitude: -82.5057,
+  );
+
+  final _riverWalk = WayPoint(
+    name: "River Walk",
+    latitude: 27.9447,
+    longitude: -82.4588,
+  );
+
   bool _isMultipleStop = false;
   double? _distanceRemaining, _durationRemaining;
   MapBoxNavigationViewController? _controller;
@@ -65,7 +78,12 @@ class _SampleNavigationAppState extends State<SampleNavigationApp> {
     if (!mounted) return;
 
     _navigationOption = MapBoxNavigation.instance.getDefaultOptions();
-    _navigationOption.simulateRoute = true;
+    _navigationOption.simulateRoute = false;
+    _navigationOption.mapStyleUrlDay =
+        'mapbox://styles/mapbox/navigation-night-v1';
+    _navigationOption.mapStyleUrlNight =
+        'mapbox://styles/mapbox/navigation-night-v1';
+
     //_navigationOption.initialLatitude = 36.1175275;
     //_navigationOption.initialLongitude = -115.1839524;
     MapBoxNavigation.instance.registerRouteEventListener(_onEmbeddedRouteEvent);
@@ -120,10 +138,11 @@ class _SampleNavigationAppState extends State<SampleNavigationApp> {
                           child: const Text("Start A to B"),
                           onPressed: () async {
                             var wayPoints = <WayPoint>[];
-                            wayPoints.add(_home);
-                            wayPoints.add(_store);
+                            wayPoints.add(_dentist);
+                            wayPoints.add(_riverWalk);
 
-                            await MapBoxNavigation.instance.startNavigation(wayPoints: wayPoints);
+                            await MapBoxNavigation.instance
+                                .startNavigation(wayPoints: wayPoints);
                           },
                         ),
                         const SizedBox(
@@ -150,8 +169,12 @@ class _SampleNavigationAppState extends State<SampleNavigationApp> {
                                     units: VoiceUnits.metric));
                             //after 10 seconds add a new stop
                             await Future.delayed(const Duration(seconds: 10));
-                            var stop = WayPoint(name: "Gas Station", latitude: 38.911176544398, longitude: -77.04014366543564);
-                            MapBoxNavigation.instance.addWayPoints(wayPoints: [stop]);
+                            var stop = WayPoint(
+                                name: "Gas Station",
+                                latitude: 38.911176544398,
+                                longitude: -77.04014366543564);
+                            MapBoxNavigation.instance
+                                .addWayPoints(wayPoints: [stop]);
                           },
                         )
                       ],
@@ -175,17 +198,18 @@ class _SampleNavigationAppState extends State<SampleNavigationApp> {
                           onPressed: _isNavigating
                               ? null
                               : () {
-                            if (_routeBuilt) {
-                              _controller?.clearRoute();
-                            } else {
-                              var wayPoints = <WayPoint>[];
-                              wayPoints.add(_home);
-                              wayPoints.add(_store);
-                              _isMultipleStop = wayPoints.length > 2;
-                              _controller?.buildRoute(
-                                  wayPoints: wayPoints, options: _navigationOption);
-                            }
-                          },
+                                  if (_routeBuilt) {
+                                    _controller?.clearRoute();
+                                  } else {
+                                    var wayPoints = <WayPoint>[];
+                                    wayPoints.add(_home);
+                                    wayPoints.add(_store);
+                                    _isMultipleStop = wayPoints.length > 2;
+                                    _controller?.buildRoute(
+                                        wayPoints: wayPoints,
+                                        options: _navigationOption);
+                                  }
+                                },
                           child: Text(_routeBuilt && !_isNavigating
                               ? "Clear Route"
                               : "Build Route"),
@@ -197,8 +221,8 @@ class _SampleNavigationAppState extends State<SampleNavigationApp> {
                           child: const Text("Start "),
                           onPressed: _routeBuilt && !_isNavigating
                               ? () {
-                            _controller?.startNavigation();
-                          }
+                                  _controller?.startNavigation();
+                                }
                               : null,
                         ),
                         const SizedBox(
@@ -208,8 +232,8 @@ class _SampleNavigationAppState extends State<SampleNavigationApp> {
                           child: const Text("Cancel "),
                           onPressed: _isNavigating
                               ? () {
-                            _controller?.finishNavigation();
-                          }
+                                  _controller?.finishNavigation();
+                                }
                               : null,
                         )
                       ],
@@ -267,20 +291,6 @@ class _SampleNavigationAppState extends State<SampleNavigationApp> {
                 ),
               ),
             ),
-            Expanded(
-              flex: 1,
-              child: Container(
-                color: Colors.grey,
-                child: MapBoxNavigationView(
-                    options: _navigationOption,
-                    onRouteEvent: _onEmbeddedRouteEvent,
-                    onCreated:
-                        (MapBoxNavigationViewController controller) async {
-                      _controller = controller;
-                      controller.initialize();
-                    }),
-              ),
-            )
           ]),
         ),
       ),
@@ -317,7 +327,9 @@ class _SampleNavigationAppState extends State<SampleNavigationApp> {
       case MapBoxEvent.on_arrival:
         if (!_isMultipleStop) {
           await Future.delayed(const Duration(seconds: 3));
-          await _controller?.finishNavigation();
+
+          await MapBoxNavigation.instance.finishNavigation();
+          //await _controller?.finishNavigation();
         } else {}
         break;
       case MapBoxEvent.navigation_finished:

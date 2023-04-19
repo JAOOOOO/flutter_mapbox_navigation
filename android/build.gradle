@@ -14,7 +14,7 @@ buildscript {
             }
             credentials {
                 username = "mapbox"
-                password = project.hasProperty('MAPBOX_DOWNLOADS_TOKEN') ? project.property('MAPBOX_DOWNLOADS_TOKEN') : System.getenv('MAPBOX_DOWNLOADS_TOKEN')
+                password = System.getenv("SDK_REGISTRY_TOKEN") ?: project.properties['SDK_REGISTRY_TOKEN']
                 if (password == null || password == "") {
                     throw new GradleException("MAPBOX_DOWNLOADS_TOKEN isn't set. Set it to the project properties or to the enviroment variables.")
                 }
@@ -41,7 +41,7 @@ rootProject.allprojects {
             }
             credentials {
                 username = "mapbox"
-                password = project.hasProperty('MAPBOX_DOWNLOADS_TOKEN') ? project.property('MAPBOX_DOWNLOADS_TOKEN') : System.getenv('MAPBOX_DOWNLOADS_TOKEN')
+                password = System.getenv("SDK_REGISTRY_TOKEN") ?: project.properties['SDK_REGISTRY_TOKEN']
                 if (password == null || password == "") {
                     throw new GradleException("MAPBOX_DOWNLOADS_TOKEN isn't set. Set it to the project properties or to the enviroment variables.")
                 }
@@ -87,9 +87,15 @@ android {
 
 dependencies {
     // Mapbox Navigation SDK
-    implementation "com.mapbox.navigation:copilot:2.10.1"
-    implementation "com.mapbox.navigation:ui-app:2.10.1"
-    implementation "com.mapbox.navigation:ui-dropin:2.10.1"
+    implementation ("com.mapbox.navigation:copilot:2.10.1") {
+        exclude group: 'com.mapbox.plugin', module: 'maps-lifecycle'
+    }
+    implementation ("com.mapbox.navigation:ui-app:2.10.1") {
+        exclude group: 'com.mapbox.plugin', module: 'maps-lifecycle'
+    }
+    implementation ("com.mapbox.navigation:ui-dropin:2.10.1" ) {
+        exclude group: 'com.mapbox.plugin', module: 'maps-lifecycle'
+    }
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.jakewharton.timber:timber:4.7.1'
     implementation 'com.google.code.gson:gson:2.8.9'

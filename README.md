@@ -4,6 +4,7 @@
 
 Add Turn By Turn Navigation to Your Flutter Application Using MapBox. Never leave your app when you need to navigate your users to a location.
 
+### This is a fork meant to fix issues with the original plugin when used with mapbox_maps_flutter. and it may have some special use cases I'll document.
 ## Features
 
 * A full-fledged turn-by-turn navigation UI for Flutter that’s ready to drop into your application
@@ -55,7 +56,7 @@ Add Turn By Turn Navigation to Your Flutter Application Using MapBox. Never leav
 </manifest>
 ```
 
-3. Add the MapBox Downloads token with the ```downloads:read``` scope to your gradle.properties file in Android folder to enable downloading the MapBox binaries from the repository. To secure this token from getting checked into source control, you can add it to the gradle.properties of your GRADLE_HOME which is usually at $USER_HOME/.gradle for Mac. This token can be retrieved from your [MapBox Dashboard](https://account.mapbox.com/access-tokens/). You can review the [Token Guide](https://docs.mapbox.com/accounts/guides/tokens/) to learn more about download tokens
+3. Add the MapBox Downloads token with the ```downloads:read``` scope to your global gradle.properties file  (typically in ~/.gradle/gradle.properties) folder to enable downloading the MapBox binaries from the repository. To secure this token from getting checked into source control, you can add it to the gradle.properties of your GRADLE_HOME which is usually at $USER_HOME/.gradle for Mac. This token can be retrieved from your [MapBox Dashboard](https://account.mapbox.com/access-tokens/). You can review the [Token Guide](https://docs.mapbox.com/accounts/guides/tokens/) to learn more about download tokens
 ```text
 MAPBOX_DOWNLOADS_TOKEN=sk.XXXXXXXXXXXXXXX
 ```
@@ -65,7 +66,7 @@ After adding the above, your gradle.properties file may look something like this
 org.gradle.jvmargs=-Xmx1536M
 android.useAndroidX=true
 android.enableJetifier=true
-MAPBOX_DOWNLOADS_TOKEN=sk.epe9nE9peAcmwNzKVNqSbFfp2794YtnNepe9nE9peAcmwNzKVNqSbFfp2794YtnN.-HrbMMQmLdHwYb8r
+SDK_REGISTRY_TOKEN=sk.epe9nE9peAcmwNzKVNqSbFfp2794YtnNepe9nE9peAcmwNzKVNqSbFfp2794YtnN.-HrbMMQmLdHwYb8r
 ```
 
 ## Usage

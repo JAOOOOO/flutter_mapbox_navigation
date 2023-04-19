@@ -9,7 +9,6 @@ import com.eopeter.flutter_mapbox_navigation.models.MapBoxEvents
 import com.eopeter.flutter_mapbox_navigation.models.MapBoxRouteProgressEvent
 import com.eopeter.flutter_mapbox_navigation.utilities.PluginUtilities
 import com.eopeter.flutter_mapbox_navigation.utilities.PluginUtilities.Companion.sendEvent
-import com.mapbox.api.directions.v5.models.Bearing
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.geojson.Point
@@ -23,19 +22,16 @@ import com.mapbox.navigation.base.options.NavigationOptions
 import com.mapbox.navigation.base.route.*
 import com.mapbox.navigation.base.trip.model.RouteLegProgress
 import com.mapbox.navigation.base.trip.model.RouteProgress
-import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.arrival.ArrivalObserver
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.dropin.map.MapViewObserver
-import com.mapbox.navigation.ui.app.internal.startArrival
-import com.mapbox.navigation.ui.tripprogress.model.*
+import com.mapbox.navigation.ui.app.internal.endNavigation
 import com.mapbox.navigation.utils.internal.ifNonNull
 import eopeter.flutter_mapbox_navigation.R
 import eopeter.flutter_mapbox_navigation.databinding.NavigationActivityBinding
-import java.util.*
 
 class NavigationActivity : AppCompatActivity() {
 
@@ -49,7 +45,7 @@ class NavigationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setTheme(R.style.Theme_AppCompat_NoActionBar)
-        binding = NavigationActivityBinding.inflate(layoutInflater)
+        _binding = NavigationActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         accessToken =
@@ -63,6 +59,9 @@ class NavigationActivity : AppCompatActivity() {
             .setup(navigationOptions)
             .attach(this)
 
+        registerListeners()
+
+
         if (FlutterMapboxNavigationPlugin.allowsClickToSetDestination) {
             binding.navigationView.registerMapObserver(onMapLongClick)
             binding.navigationView.customizeViewOptions {
@@ -70,11 +69,14 @@ class NavigationActivity : AppCompatActivity() {
             }
         }
 
-        MapboxNavigationApp.current()?.registerLocationObserver(locationObserver)
-        MapboxNavigationApp.current()?.registerRouteProgressObserver(routeProgressObserver)
-        MapboxNavigationApp.current()?.registerArrivalObserver(arrivalObserver)
+
+
+
+
+
         finishBroadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
+                MapboxNavigationApp.current()?.onDestroy()
                 finish()
             }
         }
@@ -114,18 +116,38 @@ class NavigationActivity : AppCompatActivity() {
         binding.navigationView.customizeViewStyles {
 
         }
+        binding.navigationView.customizeViewOptions {
+            mapStyleUriDay = styleUrl
+            mapStyleUriNight = styleUrl
+        }
+        binding.navigationView.customizeViewBinders {
+            //infoPanelEndNavigationButtonBinder = { endNavigation() }
+        }
         requestRoutes(points)
     }
 
+    private fun  registerListeners() {
+        MapboxNavigationApp.current()?.registerLocationObserver(locationObserver)
+        MapboxNavigationApp.current()?.registerRouteProgressObserver(routeProgressObserver)
+        MapboxNavigationApp.current()?.registerArrivalObserver(arrivalObserver)
+
+    }
+
     override fun onDestroy() {
-        super.onDestroy()
         if (FlutterMapboxNavigationPlugin.allowsClickToSetDestination) {
             binding.navigationView.unregisterMapObserver(onMapLongClick)
         }
-        MapboxNavigationApp.current()?.unregisterLocationObserver(locationObserver)
-        MapboxNavigationApp.current()?.unregisterRouteProgressObserver(routeProgressObserver)
-        MapboxNavigationApp.current()?.unregisterArrivalObserver(arrivalObserver)
+        MapboxNavigationApp.current()?.onDestroy()
+
+        _binding = null
+        finishBroadcastReceiver = null
+        addWayPointsBroadcastReceiver = null
+        lastLocation = null
+        super.onDestroy()
+
     }
+
+
 
     override fun onStart() {
         super.onStart()
@@ -261,8 +283,12 @@ class NavigationActivity : AppCompatActivity() {
     /**
      * Bindings to the Navigation Activity.
      */
-    private lateinit var binding: NavigationActivityBinding// MapboxActivityTurnByTurnExperienceBinding
+    private var _binding: NavigationActivityBinding? = null  // MapboxActivityTurnByTurnExperienceBinding
 
+    /**
+     * Gets the binding.
+     */
+    private val binding get() = _binding!!
 
     /**
      * Gets notified with progress along the currently active route.

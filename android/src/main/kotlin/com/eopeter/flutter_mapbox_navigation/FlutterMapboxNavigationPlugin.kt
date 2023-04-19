@@ -42,7 +42,7 @@ public class FlutterMapboxNavigationPlugin : FlutterPlugin, MethodCallHandler,
         progressEventChannel.setStreamHandler(this)
 
         platformViewRegistry = binding.platformViewRegistry
-        binaryMessenger = messenger;
+        binaryMessenger = messenger
 
 
     }
