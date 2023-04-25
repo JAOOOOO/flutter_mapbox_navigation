@@ -3,6 +3,7 @@ package com.eopeter.flutter_mapbox_navigation.activity
 import android.content.*
 import android.location.Location
 import android.os.Bundle
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import com.eopeter.flutter_mapbox_navigation.FlutterMapboxNavigationPlugin
 import com.eopeter.flutter_mapbox_navigation.models.MapBoxEvents
@@ -24,11 +25,16 @@ import com.mapbox.navigation.base.trip.model.RouteLegProgress
 import com.mapbox.navigation.base.trip.model.RouteProgress
 import com.mapbox.navigation.core.arrival.ArrivalObserver
 import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
+import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
+import com.mapbox.navigation.core.trip.session.TripSessionState
+import com.mapbox.navigation.core.trip.session.TripSessionStateObserver
+import com.mapbox.navigation.dropin.infopanel.InfoPanelBinder
 import com.mapbox.navigation.dropin.map.MapViewObserver
 import com.mapbox.navigation.ui.app.internal.endNavigation
+import com.mapbox.navigation.ui.base.lifecycle.UIBinder
 import com.mapbox.navigation.utils.internal.ifNonNull
 import eopeter.flutter_mapbox_navigation.R
 import eopeter.flutter_mapbox_navigation.databinding.NavigationActivityBinding
@@ -122,6 +128,7 @@ class NavigationActivity : AppCompatActivity() {
         }
         binding.navigationView.customizeViewBinders {
             //infoPanelEndNavigationButtonBinder = { endNavigation() }
+
         }
         requestRoutes(points)
     }
