@@ -95,7 +95,7 @@ public class FlutterMapboxNavigationPlugin : FlutterPlugin, MethodCallHandler,
                 addWayPointsToNavigation(call, result)
             }
             "finishNavigation" -> {
-                NavigationLauncher.stopNavigation(currentActivity)
+                currentActivity?.let { NavigationLauncher.stopNavigation(it) }
             }
             "enableOfflineRouting" -> {
                 downloadRegionForOfflineRouting(call, result)
@@ -188,7 +188,7 @@ public class FlutterMapboxNavigationPlugin : FlutterPlugin, MethodCallHandler,
     }
 
     private fun beginNavigation(wayPoints: List<Point>) {
-        NavigationLauncher.startNavigation(currentActivity, wayPoints);
+        currentActivity?.let { NavigationLauncher.startNavigation(it, wayPoints) }
     }
 
     private fun addWayPointsToNavigation(
@@ -203,7 +203,7 @@ public class FlutterMapboxNavigationPlugin : FlutterPlugin, MethodCallHandler,
             val longitude = point["Longitude"] as Double
             wayPoints.add(Point.fromLngLat(longitude, latitude))
         }
-        NavigationLauncher.addWayPoints(currentActivity, wayPoints);
+        currentActivity?.let { NavigationLauncher.addWayPoints(it, wayPoints) }
     }
 
     override fun onListen(args: Any?, events: EventChannel.EventSink?) {
